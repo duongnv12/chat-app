@@ -33,10 +33,6 @@ const request = require('supertest');
         token = loginResponse.body.token;
       });
     
-      afterEach(async () => {
-        await User.deleteMany({});
-      });
-    
       it('Should update the current user information', async () => {
         const response = await request(app)
           .put('/api/users/me')
@@ -69,31 +65,35 @@ const request = require('supertest');
     
       it('Should return 400 if username already exists', async () => {
         // Tạo một người dùng khác
-        await User.create({
+        const existingUser = await User.create({
           username: 'existinguser',
           email: 'existinguser@example.com',
           password: await bcrypt.hash('password123', 10),
         });
     
-        await request(app)
+        const response = await request(app)
           .put('/api/users/me')
           .set('Authorization', `Bearer ${token}`)
           .send({ username: 'existinguser' })
           .expect(400);
+    
+        expect(response.body.message).toBe('Username đã tồn tại'); // Kiểm tra message
       });
     
       it('Should return 400 if email already exists', async () => {
         // Tạo một người dùng khác
-        await User.create({
+        const existingUser = await User.create({
           username: 'existinguser',
           email: 'existinguser@example.com',
           password: await bcrypt.hash('password123', 10),
         });
     
-        await request(app)
+        const response = await request(app)
           .put('/api/users/me')
           .set('Authorization', `Bearer ${token}`)
           .send({ email: 'existinguser@example.com' })
           .expect(400);
+    
+         expect(response.body.message).toBe('Email đã tồn tại'); // Kiểm tra message
       });
     });
