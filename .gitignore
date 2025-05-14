@@ -1,5 +1,7 @@
 # Ignore environment files
 user-service/.env
+user-service/tests/.env
+
 
 
 # Node.js dependencies
@@ -24,3 +26,4 @@ Thumbs.db
 .vscode/
 .idea/
 *.iml
+.gitignore
