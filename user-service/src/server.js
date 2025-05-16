@@ -1,19 +1,31 @@
-// src/server.js
-   const app = require('./app');
-   const { connectDB } = require('./config/db.config');
-   const dotenv = require('dotenv');
-   
-   dotenv.config(); // Load biến môi trường từ file .env
-   
-   const PORT = process.env.PORT || 3000;
-   
-   // Connect to database
-   connectDB()
-     .then(() => {
-       app.listen(PORT, () => {
-         console.log(`Server is running on port ${PORT}`);
-       });
-     })
-     .catch((error) => {
-       console.error('Database connection error:', error);
-     });
+require('dotenv').config();
+const express = require('express');
+const mongoose = require('mongoose');
+const userRoutes = require('./routes/user.routes');
+
+const app = express();
+app.use(express.json());
+
+// Chỉ kết nối MongoDB nếu **không phải môi trường test**
+if (process.env.NODE_ENV !== 'test') {
+  mongoose.connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+    .then(() => console.log("MongoDB connected for User Service..."))
+    .catch((err) => console.error("MongoDB connection error:", err));
+}
+
+// Định nghĩa routes
+app.use('/api/users', userRoutes);
+
+const port = process.env.PORT || 3001;
+
+// Không khởi động server nếu đang chạy test
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(port, () => {
+    console.log(`User Service started on port ${port}`);
+  });
+}
+
+module.exports = app;

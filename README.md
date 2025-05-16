@@ -1,104 +1,190 @@
-# Chat App - Hệ thống phân tán thời gian thực
+# Chat App Phân Tán
 
-## Mô tả
+Chat App là một hệ thống giao tiếp thời gian thực với kiến trúc microservices, được thiết kế nhằm đáp ứng nhu cầu kết nối tức thời, khả năng mở rộng linh hoạt và chịu lỗi cao. Hệ thống được chia thành nhiều dịch vụ độc lập để tối ưu hóa việc phát triển, bảo trì và triển khai.
 
-Ứng dụng Chat App là một hệ thống phân tán cho phép người dùng giao tiếp với nhau trong thời gian thực. Hệ thống được xây dựng theo kiến trúc Microservices, sử dụng các công nghệ hiện đại để đảm bảo khả năng mở rộng, hiệu suất và độ tin cậy.
+## 1. Tổng Quan
 
-## Các tính năng chính
+- **Mục tiêu:**  
+  Cung cấp nền tảng chat thời gian thực với các tính năng:
+  - Gửi/nhận tin nhắn tức thời
+  - Tạo phòng chat, quản lý người dùng
+  - Nhận thông báo đẩy khi có tin mới
+  - Hỗ trợ đa nền tảng: Web và Mobile
 
-* **Đăng ký và đăng nhập người dùng:** Người dùng có thể tạo tài khoản và đăng nhập để sử dụng ứng dụng.
-* **Tạo và quản lý phòng chat:** Người dùng có thể tạo các phòng chat công khai hoặc riêng tư.
-* **Gửi và nhận tin nhắn thời gian thực:** Người dùng có thể gửi và nhận tin nhắn trong phòng chat.
-* **Thông báo:** Hệ thống gửi thông báo cho người dùng về các sự kiện quan trọng (ví dụ: tin nhắn mới).
-* **(Tùy chọn)** Chia sẻ tệp, trạng thái trực tuyến, v.v.
+- **Kiến trúc:**  
+  Hệ thống sử dụng:
+  - **Microservices Architecture:** Các dịch vụ chính bao gồm:  
+    - `api-gateway`: Định tuyến, xác thực và xử lý cross-cutting concerns  
+    - `user-service`: Quản lý người dùng  
+    - `chat-service`: Xử lý tin nhắn và lưu trữ lịch sử chat  
+    - `notification-service`: Gửi thông báo (push, email, SMS)  
+  - **Event-Driven Architecture:** Sử dụng Message Queue (RabbitMQ/Kafka) để truyền tải sự kiện bất đồng bộ giữa các dịch vụ.
+  - **Giao tiếp thực thời gian:** Sử dụng WebSocket (Socket.IO) cho giao tiếp real-time giữa client và server.
 
-## Kiến trúc hệ thống
+## 2. Kiến Trúc Hệ Thống
 
-Hệ thống được xây dựng theo kiến trúc Microservices, bao gồm các service sau:
+- **API Gateway:**  
+  Đóng vai trò trung gian, định tuyến các request từ client đến các microservice thích hợp. Đồng thời xử lý các nhiệm vụ như xác thực, logging và giới hạn tốc độ.
 
-* **API Gateway:** Định tuyến các request từ client đến các service tương ứng.
-* **User Service:** Quản lý thông tin người dùng (đăng ký, đăng nhập, hồ sơ).
-* **Chat Service:** Xử lý logic liên quan đến chat (phòng chat, tin nhắn, WebSocket).
-* **Notification Service:** Xử lý thông báo (email, push notifications).
+- **Microservices:**  
+  Mỗi service được triển khai độc lập:
+  - **User Service:** Đăng ký, đăng nhập và quản lý thông tin người dùng.
+  - **Chat Service:** Xử lý gửi/nhận tin nhắn, lưu trữ và quản lý phòng chat.
+  - **Notification Service:** Gửi thông báo đẩy và email khi có sự kiện mới.
+  
+- **Frontend (Web):**  
+  Ứng dụng giao diện được xây dựng bằng React, giao tiếp với API Gateway qua REST API và/WebSocket.
 
-Các service giao tiếp với nhau thông qua REST APIs và Message Queue (RabbitMQ).
+- **Shared Libraries:**  
+  Các module dùng chung như DTO, kiểu dữ liệu, constants và helper functions được đặt ở thư mục `shared/` để đảm bảo tính nhất quán giữa các dịch vụ và giao diện.
 
-## Công nghệ sử dụng
+## 3. Công Nghệ Sử Dụng
 
-* **Backend:**
-    * Node.js
-    * Express
-    * MongoDB
-    * Socket.IO
-    * RabbitMQ
-    * JWT (JSON Web Token)
-    * bcrypt
-* **Frontend:**
-    * React
-    * Tailwind CSS (hoặc tùy chọn)
-* **Khác:**
-    * Docker
-    * Docker Compose
+- **Backend:**  
+  - Node.js, Express  
+  - RabbitMQ hoặc Apache Kafka (Message Queue)  
+  - Redis (Caching & Distributed Locking)  
+  - Docker & Kubernetes (Containerization & Orchestration)  
+  - JWT cho xác thực  
+  - Prometheus, Grafana (Monitoring)  
+  - ELK Stack, Graylog (Logging)  
 
-## Cấu trúc thư mục
+- **Frontend:**  
+  - React, TypeScript  
+  - Axios (để gọi API từ API Gateway)  
+
+## 4. Hướng Dẫn Cài Đặt
+
+### Yêu Cầu
+- Node.js (phiên bản LTS)
+- Docker (nếu triển khai container)
+- [Optional] NX CLI (nếu sử dụng monorepo)
+
+### Các Bước Cài Đặt
+
+1. **Clone repository:**
+    ```bash
+    git clone https://github.com/your-repo/chat-app.git
+    ```
+
+2. **Đi vào thư mục dự án:**
+    ```bash
+    cd chat-app
+    ```
+
+3. **Cài đặt dependencies cho từng dịch vụ:**
+    - API Gateway:
+      ```bash
+      cd api-gateway
+      npm install
+      ```
+    - User Service:
+      ```bash
+      cd ../user-service
+      npm install
+      ```
+    - Chat Service:
+      ```bash
+      cd ../chat-service
+      npm install
+      ```
+    - Notification Service:
+      ```bash
+      cd ../notification-service
+      npm install
+      ```
+    - Frontend:
+      ```bash
+      cd ../web
+      npm install
+      ```
+
+4. **Chạy dự án:**
+    - Với Docker Compose (nếu có file docker-compose.yml):
+      ```bash
+      docker-compose up -d
+      ```
+    - Hoặc chạy riêng từng dịch vụ:
+      ```bash
+      cd api-gateway && npm start
+      cd ../user-service && npm start
+      # Tương tự với các dịch vụ khác
+      cd ../web && npm start  # Frontend chạy tại http://localhost:3000 (hoặc cổng cấu hình)
+      ```
+
+## 5. Cấu Trúc Dự Án
 
 ```
 chat-app/
-  ├── api-gateway/       # API Gateway Service
-  ├── user-service/      # User Service
-  ├── chat-service/      # Chat Service
-  ├── notification-service/ # Notification Service
-  ├── common/            # Code dùng chung
-  ├── web/               # Frontend (React)
-  ├── docker-compose.yml  # Docker Compose (tùy chọn)
-  └── ...
+├── api-gateway/                # Dịch vụ định tuyến và xử lý xác thực, logging
+│   ├── src/
+│   │   ├── controllers/
+│   │   ├── middlewares/
+│   │   ├── routes/
+│   │   └── app.js
+│   └── package.json
+│
+├── user-service/               # Dịch vụ quản lý người dùng
+│   ├── src/
+│   │   ├── controllers/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   ├── models/
+│   │   └── app.js
+│   └── package.json
+│
+├── chat-service/               # Dịch vụ xử lý tin nhắn
+│   ├── src/
+│   │   ├── controllers/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   ├── middlewares/
+│   │   ├── models/
+│   │   └── app.js
+│   └── package.json
+│
+├── notification-service/       # Dịch vụ thông báo
+│   ├── src/
+│   │   ├── controllers/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   └── app.js
+│   └── package.json
+│
+├── web/                        # Ứng dụng giao diện (React)
+│   ├── public/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── services/           # API calls đến API Gateway/microservices
+│   │   └── App.tsx
+│   └── package.json
+│
+└── shared/                     # Các module dùng chung (DTO, models, utilities)
+    ├── libs/
+    └── package.json
 ```
 
-## Hướng dẫn cài đặt và chạy
+## 6. Tính Năng Chính và Tiêu Chí Đánh Giá
 
-1.  **Cài đặt Node.js và npm.**
-2.  **Cài đặt Docker (tùy chọn).**
-3.  **Clone repository:** `git clone <your-repository-url>`
-4.  **Cài đặt các dependencies:**
-    ```bash
-    npm install
-    ```
-    (Chạy lệnh này trong từng thư mục service và trong thư mục `web/`)
-5.  **Cấu hình các biến môi trường:**
-    * Tạo file `.env` trong từng thư mục service và cấu hình các biến (ví dụ: `MONGODB_URI`, `JWT_SECRET`, `RABBITMQ_URL`).
-6.  **Khởi chạy các service:**
-    * Nếu dùng Docker Compose: `docker-compose up -d`
-    * Nếu chạy thủ công: `npm start` (trong từng thư mục service)
-7.  **Khởi chạy frontend:**
-    ```bash
-    cd web/
-    npm start
-    ```
+- **Mở đầu:** Giới thiệu hệ thống, mục tiêu, ứng dụng và sơ đồ kiến trúc tổng thể.
+- **Kiến trúc:** Microservices, event-driven architecture và service-oriented communication.
+- **Tiến trình và luồng:** Xử lý bất đồng bộ, scheduled tasks, background jobs.
+- **Trao đổi thông tin:** Sử dụng REST API, WebSocket, Message Queue, caching...
+- **Định danh:** UUID, DNS, Service Registry, JWT, SSL/TLS.
+- **Đồng bộ hóa:** Distributed Locking, CQRS, Concurrency Control.
+- **Sao lưu:** Database backup, incremental backup, cloud storage.
+- **Tính chịu lỗi:** Circuit Breaking, Health Monitoring, Log Management, Failover, Auto-Scaling.
 
-## Các tiêu chí đánh giá
+## 7. Hướng Phát Triển
 
-Dự án được đánh giá dựa trên các tiêu chí sau (tham khảo bảng chấm điểm):
+- Tích hợp CI/CD cho từng dịch vụ.
+- Tối ưu hóa hiệu năng qua việc scale independent services.
+- Mở rộng thêm chức năng như video call, chat nhóm nâng cao.
+- Triển khai trên Kubernetes để kiểm soát việc deploy đa vùng, chịu lỗi cao.
 
-* **Chương 1: Mở đầu:** Giới thiệu tổng quan về hệ thống phân tán, mục tiêu và yêu cầu.
-* **Chương 2: Kiến trúc:** Đánh giá về kiến trúc Microservices, các thành phần và giao tiếp giữa các node.
-* **Chương 3: Tiến trình và luồng:** Mô tả về các tiến trình, luồng xử lý và cách giao tiếp.
-* **Chương 4: Trao đổi thông tin:** Đánh giá các phương thức giao tiếp (REST APIs, Message Queue, WebSocket).
-* **Chương 5: Định danh:** Cơ chế định danh các node và tiến trình (UUID, JWT).
-* **Chương 6: Đồng bộ hóa:** Các cơ chế đồng bộ hóa tiến trình.
-* **Chương 7: Sao lưu:** Phương pháp sao lưu và phục hồi dữ liệu.
-* **Chương 8: Tính chịu lỗi:** Đảm bảo khả năng phục hồi sau sự cố.
+## 8. Liên Hệ và Tài Liệu
 
-## Đóng góp
-
-Mọi đóng góp đều được hoan nghênh! Vui lòng tạo pull request hoặc issue để thảo luận.
-
-## Tác giả
-
-[Tên của bạn]
-
-## License
-
-[Giấy phép] (ví dụ: MIT)
-
-
-
+- **Tài liệu thiết kế chi tiết:** [Link tới tài liệu thiết kế hệ thống]
+- **Email:** your.email@example.com
+- **GitHub:** [YourUsername](https://github.com/YourUsername)

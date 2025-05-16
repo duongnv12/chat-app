@@ -1,0 +1,54 @@
+version: "3.8"
+services:
+  mongo:
+    image: mongo:5
+    container_name: chat-app-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: chat-app-api-gateway
+    env_file: 
+      - ./api-gateway/.env
+    ports:
+      - "3000:3000"
+    depends_on:
+      - user-service
+      - chat-service
+      - notification-service
+
+  user-service:
+    build: ./user-service
+    container_name: chat-app-user-service
+    env_file:
+      - ./user-service/.env
+    ports:
+      - "3001:3001"
+    depends_on:
+      - mongo
+
+  chat-service:
+    build: ./chat-service
+    container_name: chat-app-chat-service
+    env_file:
+      - ./chat-service/.env
+    ports:
+      - "3002:3002"
+    depends_on:
+      - mongo
+
+  notification-service:
+    build: ./notification-service
+    container_name: chat-app-notification-service
+    env_file:
+      - ./notification-service/.env
+    ports:
+      - "3003:3003"
+    depends_on:
+      - mongo
+
+volumes:
+  mongo_data:

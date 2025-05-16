@@ -1,11 +1,21 @@
 # Ignore environment files
+.env
 user-service/.env
 user-service/tests/.env
+chat-service/.env
+chat-service/tests/.env
+notification-service/.env
+notification-service/tests/.env
 
 
 
 # Node.js dependencies
 node_modules/
+user-service/node_modules/
+chat-service/node_modules/
+api-service/node_modules/
+notification-service/node_modules/
+
 
 # Logs
 logs/

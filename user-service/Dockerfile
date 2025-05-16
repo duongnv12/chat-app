@@ -1,23 +1,22 @@
-# Sử dụng Node.js runtime làm base image
 FROM node:18-alpine
 
-# Đặt thư mục làm việc bên trong container
 WORKDIR /app
 
-# Copy các file package.json và package-lock.json vào thư mục làm việc
-COPY package*.json ./
+# Cài đặt các công cụ cần thiết để biên dịch module native
+RUN apk add --no-cache python3 make g++ \
+    && ln -sf python3 /usr/bin/python
 
-# Cài đặt các dependencies
-RUN npm install --production
+# Copy các file cần thiết
+COPY package.json /
 
-# Copy toàn bộ source code vào thư mục làm việc
-COPY ./src/server.js ./server.js
+# Cài đặt dependencies
+RUN yarn install --production
 
-# Đảm bảo file server.js tồn tại
-RUN test -f server.js || (echo "Error: server.js not found!" && exit 1)
+# Copy toàn bộ mã nguồn của dự án vào container
+COPY . .
 
-# Khai báo port mà ứng dụng sẽ lắng nghe
-EXPOSE 3000
+# Expose cổng ứng dụng (3001 ở đây)
+EXPOSE 3001
 
-# Lệnh chạy ứng dụng
-CMD ["npm", "start"]
+# Khởi chạy ứng dụng
+CMD ["yarn", "start"]
