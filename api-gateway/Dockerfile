@@ -7,7 +7,6 @@ RUN yarn install --production
 
 COPY . .
 
-# Expose cổng cho API Gateway (ở đây là 3000)
 EXPOSE 3000
 
-CMD ["yarn", "start"]
+CMD ["node", "src/server.js"]

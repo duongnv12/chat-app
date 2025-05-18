@@ -6,7 +6,8 @@ chat-service/.env
 chat-service/tests/.env
 notification-service/.env
 notification-service/tests/.env
-
+file-service/.env
+api-gateway/.env
 
 
 # Node.js dependencies
@@ -37,3 +38,8 @@ Thumbs.db
 .idea/
 *.iml
 .gitignore
+chat-service/.env
+chat-service/.env
+api-gateway/.env
+api-gateway/.env
+api-gateway/.env
