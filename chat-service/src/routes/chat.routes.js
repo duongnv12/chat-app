@@ -11,6 +11,11 @@ router.post('/sendMessage', chatController.sendMessage);
 // Lấy danh sách tin nhắn theo roomId
 router.get('/:roomId', chatController.getRoomMessages);
 
+// Test endpoint để kiểm tra hoạt động của Chat Service
+router.get('/test', (req, res) => {
+  res.json({ message: "Chat Service is running." });
+});
+
 // Endpoint kiểm tra nhanh trạng thái service
 router.get('/', (req, res) => {
   res.json({ message: "Chat Service is running" });

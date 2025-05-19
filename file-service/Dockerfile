@@ -1,5 +1,5 @@
 # Sử dụng image Node.js (ví dụ: phiên bản alpine nhẹ)
-FROM node:18-alpine
+FROM node:20-alpine
 
 # Thiết lập thư mục làm việc trong container
 WORKDIR /app

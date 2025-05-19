@@ -16,7 +16,7 @@ app.use(cors({
 }));
 
 // Đăng ký các endpoint REST cho Chat Service
-app.use('/api/chat', chatRoutes);
+app.use('/chat', chatRoutes);
 
 // Kết nối MongoDB nếu không ở môi trường test
 if (process.env.NODE_ENV !== 'test') {

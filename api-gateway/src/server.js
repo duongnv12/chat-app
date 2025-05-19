@@ -1,21 +1,56 @@
+// server.js của API Gateway sử dụng Fastify và @fastify/http-proxy
+const Fastify = require('fastify');
+const proxy = require('@fastify/http-proxy');
 require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const { createProxyMiddleware } = require('http-proxy-middleware');
 
-const app = express();
+const app = Fastify({
+  logger: true
+});
 
-// Cấu hình middleware
-app.use(cors());
-app.use(express.json());
+// Route test để xác nhận API Gateway đang chạy
+app.get('/api/test', async (req, reply) => {
+  return { message: 'API Gateway is working.' };
+});
 
-// Định tuyến các request đến microservice tương ứng
-app.use('/users', createProxyMiddleware({ target: process.env.USER_SERVICE_URL, changeOrigin: true }));
-app.use('/chat', createProxyMiddleware({ target: process.env.CHAT_SERVICE_URL, changeOrigin: true }));
-app.use('/notification', createProxyMiddleware({ target: process.env.NOTIFICATION_SERVICE_URL, changeOrigin: true }));
-app.use('/files', createProxyMiddleware({ target: process.env.FILE_SERVICE_URL, changeOrigin: true }));
+// Proxy tới User Service:
+// Public URL: http://localhost:3000/api/users/ sẽ được rewrite thành /users
+app.register(proxy, {
+  upstream: process.env.USER_SERVICE_URL || 'http://localhost:3001',
+  prefix: '/api/users',
+  rewritePrefix: '/users',
+  http2: false,
+  // Các tùy chọn khác nếu cần
+});
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-  console.log(`API Gateway started on port ${port}`);
+// Proxy tới Chat Service
+app.register(proxy, {
+  upstream: process.env.CHAT_SERVICE_URL || 'http://localhost:3002',
+  prefix: '/api/chat',
+  rewritePrefix: '/chat',
+  http2: false,
+});
+
+// Proxy tới Notification Service
+app.register(proxy, {
+  upstream: process.env.NOTIFICATION_SERVICE_URL || 'http://localhost:3003',
+  prefix: '/api/notification',
+  rewritePrefix: '/notification',
+  http2: false,
+});
+
+// Proxy tới File Service
+app.register(proxy, {
+  upstream: process.env.FILE_SERVICE_URL || 'http://localhost:3004',
+  prefix: '/api/files',
+  rewritePrefix: '/files',
+  http2: false,
+});
+
+const port = Number(process.env.PORT) || 3000;
+app.listen({ port, host: '0.0.0.0' }, (err, address) => {
+  if (err) {
+    app.log.error(err);
+    process.exit(1);
+  }
+  app.log.info(`API Gateway listening on ${address}`);
 });

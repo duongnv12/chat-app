@@ -21,6 +21,9 @@ router.post('/resetPassword', userController.resetPassword);
 // Delete account endpoint (yêu cầu người dùng đã xác thực)
 router.delete('/deleteAccount', authenticateToken, userController.deleteAccount);
 
+// List users endpoint (yêu cầu người dùng đã xác thực)
+router.get("/list", userController.listUsers);  // Route mới để lấy danh sách người dùng
+
 router.get('/', (req, res) => {
   res.json({ message: "User Service is running." });
 });

@@ -182,3 +182,12 @@ exports.deleteAccount = async (req, res) => {
     return res.status(500).json({ message: "Error processing your request", error: err.toString() });
   }
 };
+
+exports.listUsers = async (req, res) => {
+  try {
+    const users = await User.find(); 
+    res.json({ users });
+  } catch (error) {
+    res.status(500).json({ error: 'Lỗi khi lấy danh sách người dùng' });
+  }
+};

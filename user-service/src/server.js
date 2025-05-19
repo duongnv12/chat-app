@@ -17,7 +17,8 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 // Định nghĩa routes
-app.use('/api/users', userRoutes);
+// server.js của User Service
+app.use('/users', userRoutes);
 
 const port = process.env.PORT || 3001;
 
