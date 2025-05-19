@@ -1,8 +1,8 @@
-// __tests__/chat.test.js
+jest.setTimeout(15000);
 const request = require("supertest");
 const mongoose = require("mongoose");
 const { MongoMemoryServer } = require("mongodb-memory-server");
-const { server } = require("../src/server"); // Lấy HTTP server đã được tạo
+const { server } = require("../src/server");
 const ChatRoom = require("../src/models/ChatRoom");
 
 let testServerInstance;
@@ -10,19 +10,16 @@ let mongoServer;
 let roomId;
 
 describe("Chat Service Endpoints", () => {
-  beforeAll(async (done) => {
-    // Khởi tạo MongoDB in-memory
+  beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();
     const mongoUri = mongoServer.getUri();
     await mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true });
-    process.env.MONGO_URI = mongoUri; // Đảm bảo mọi nơi dùng MongoDB in-memory
     
-    // Sử dụng cổng ngẫu nhiên để tránh xung đột (không dùng cổng cố định)
     const randomPort = Math.floor(3000 + Math.random() * 1000);
-    testServerInstance = server.listen(randomPort, done);
+    testServerInstance = server.listen(randomPort);
   });
 
-  afterAll(async (done) => {
+  afterAll(async () => {
     try {
       if (mongoose.connection.readyState === 1 && mongoose.connection.db) {
         await mongoose.connection.db.dropDatabase();
@@ -32,11 +29,8 @@ describe("Chat Service Endpoints", () => {
     } catch (err) {
       console.error(err);
     }
-    testServerInstance.close(done);
+    testServerInstance.close();
   });
-
-  // Nếu cần tăng timeout cho các test (ví dụ: 10000 ms) thì có thể thêm:
-  jest.setTimeout(10000);
 
   it("should create a new chat room", async () => {
     const res = await request(server)

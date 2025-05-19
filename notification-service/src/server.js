@@ -1,24 +1,40 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const http = require('http');
+const { Server } = require('socket.io');
+
+require('./subscriber'); // Đảm bảo Redis Subscriber luôn chạy
+
+const notificationController = require('./controllers/notification.controller');
 
 const app = express();
+const server = http.createServer(app); // Tạo HTTP Server cho WebSocket
+const io = new Server(server, {
+  cors: {
+    origin: ["http://localhost:3000", "http://127.0.0.1:5173"], // Cho phép cả frontend Vite & API Gateway
+    methods: ["GET", "POST"],
+    credentials: true
+  }
+});
 
-// Cấu hình middleware
+
+app.use(cors());
 app.use(express.json());
-app.use(cors({
-  origin: process.env.FRONTEND_ORIGIN || "*", // Ở production, thay bằng domain frontend cụ thể
-  credentials: true,
-}));
 
-// Đăng ký route cho Notification Service
-const notificationRoutes = require('./routes/notification.routes');
-app.use('/api/notifications', notificationRoutes);
+app.post('/api/notification/send', notificationController.sendNotification);
+
+io.on('connection', (socket) => {
+  console.log(`Client connected: ${socket.id}`);
+
+  socket.on('disconnect', () => {
+    console.log(`Client disconnected: ${socket.id}`);
+  });
+});
 
 const port = process.env.PORT || 3003;
-
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Notification Service started on port ${port}`);
 });
 
-module.exports = app;
+module.exports = { app, io };
